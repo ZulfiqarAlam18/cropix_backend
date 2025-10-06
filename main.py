@@ -81,28 +81,33 @@ load_trained_model()
 
 def preprocess_image(image_file) -> np.ndarray:
     try:
+        print("🔄 Preprocessing image...")
+        start_time = datetime.now()
+        
         # Read image
         image = Image.open(io.BytesIO(image_file))
-
 
         # Convert to RGB (3 channels)
         if image.mode != 'RGB':
             image = image.convert('RGB')
 
-
-        # Resize to model input size (224x224)
-        image = image.resize((224, 224))
+        # Resize to model input size (224x224) with optimized resampling
+        image = image.resize((224, 224), Image.Resampling.LANCZOS)
 
         # Convert to numpy array
-        image_array = np.array(image)
+        image_array = np.array(image, dtype=np.float32)
         print("Image shape before prediction:", image_array.shape)
 
         # Add batch dimension
         image_array = np.expand_dims(image_array, axis=0)
 
-        # Apply EfficientNet preprocessing
-        image_array = tf.keras.applications.efficientnet.preprocess_input(image_array)
+        # Apply normalization (scale to 0-1 range)
+        image_array = image_array / 255.0
 
+        end_time = datetime.now()
+        processing_time = (end_time - start_time).total_seconds()
+        print(f"⏱️ Preprocessing time: {processing_time:.2f}s")
+        
         return image_array
 
     except Exception as e:
@@ -121,15 +126,23 @@ def predict_with_model(image_array: np.ndarray) -> tuple:
         )
     
     try:
-        # Make prediction with the trained model
-        probabilities = loaded_model.predict(image_array, verbose=0)
+        # Make prediction with the trained model (optimized for speed)
+        print("🔄 Starting prediction...")
+        start_time = datetime.now()
+        
+        # Predict with verbose=0 for faster processing
+        probabilities = loaded_model.predict(image_array, verbose=0, batch_size=1)
         
         predicted_class = int(np.argmax(probabilities, axis=1)[0])
         confidence = float(np.max(probabilities))
         
         predicted_disease = class_names[predicted_class]
         
+        end_time = datetime.now()
+        processing_time = (end_time - start_time).total_seconds()
+        
         print(f"✅ Prediction: {predicted_disease} ({confidence*100:.2f}% confidence)")
+        print(f"⏱️ Processing time: {processing_time:.2f}s")
         return predicted_disease, confidence
         
     except Exception as e:
