@@ -163,6 +163,52 @@ async def root():
         "timestamp": datetime.now().isoformat()
     }
 
+@app.post("/predict")
+async def predict_disease(
+    image: UploadFile = File(...),
+    crop_type: str = Form(None)
+):
+    """
+    Lightweight prediction endpoint for testing
+    """
+    try:
+        print(f"📋 Received prediction request for file: {image.filename}")
+        print(f"📝 Content-Type: {image.content_type}")
+        
+        # Quick validation
+        if not image.filename or not any(image.filename.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png']):
+            raise HTTPException(status_code=400, detail="Please upload a valid image file")
+        
+        # Read image content
+        print("🔄 Reading image content...")
+        image_content = await image.read()
+        print(f"📊 Image size: {len(image_content)} bytes")
+        
+        # Process image
+        print("🔄 Processing image...")
+        processed_image = preprocess_image(image_content)
+        
+        # Make prediction
+        print("🔄 Making prediction...")
+        predicted_disease, confidence = predict_with_model(processed_image)
+        
+        # Return simple response first
+        response = {
+            "success": True,
+            "predicted_disease": predicted_disease,
+            "confidence": round(confidence, 4),
+            "confidence_percentage": round(confidence * 100, 2),
+            "is_healthy": "healthy" in predicted_disease.lower(),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        print(f"✅ Returning response: {response}")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error in prediction: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
 @app.post("/detect")
 async def detect_disease(
     image: UploadFile = File(...),
