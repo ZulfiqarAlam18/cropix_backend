@@ -1,9 +1,9 @@
-fastapi
-uvicorn
-python-multipart
-pillow
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+pillow==10.1.0
 tensorflow==2.19.0
 keras==3.5.0
 numpy==1.26.4
-gunicorn
+gunicorn==21.2.0
 
