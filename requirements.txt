@@ -2,7 +2,7 @@ fastapi==0.114.0
 uvicorn==0.30.6
 python-multipart==0.0.9
 pillow==10.4.0
-tensorflow==2.19.0
+tensorflow==2.20.0
 keras==3.5.0
 numpy==1.26.4
 gunicorn==23.0.0
