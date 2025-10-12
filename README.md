@@ -25,7 +25,7 @@ python3 -m venv venv
 # Activate the environment
 source venv/bin/activate
 # Run following command to install correct versions 
-pip install fastapi uvicorn tensorflow==2.19.0 keras==3.5.0 numpy==1.26.4 pillow
+pip install fastapi uvicorn tensorflow==2.19.0 keras==3.5.0 numpy==1.26.4 pillow python-multipart
 
 
 
